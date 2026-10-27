@@ -7,6 +7,16 @@ android {
   namespace = "com.farsan.desktopsuite"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
+  signingConfigs {
+    getByName("debug") {
+      // DEBUG-ONLY key. Public and committed; NEVER use for a release build.
+      storeFile = file("debug.keystore")
+      storePassword = "android"
+      keyAlias = "androiddebugkey"
+      keyPassword = "android"
+    }
+  }
+
   defaultConfig {
     applicationId = "com.farsan.desktopsuite"
     minSdk = 24
