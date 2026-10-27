@@ -53,4 +53,13 @@ class WindowManagerState {
         val w = windows.removeAt(idx)
         windows.add(w)
     }
+
+    fun move(id: Int, dxDp: Float, dyDp: Float, maxX: Float, maxY: Float) {
+        val idx = windows.indexOfFirst { it.id == id }
+        if (idx < 0) return
+        val w = windows[idx]
+        val nx = (w.x + dxDp).coerceIn(0f, (maxX - 80f).coerceAtLeast(0f))
+        val ny = (w.y + dyDp).coerceIn(0f, (maxY - 36f).coerceAtLeast(0f))
+        windows[idx] = w.copy(x = nx, y = ny)
+    }
 }

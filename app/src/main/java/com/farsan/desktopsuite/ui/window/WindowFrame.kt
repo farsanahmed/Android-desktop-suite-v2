@@ -2,6 +2,7 @@ package com.farsan.desktopsuite.ui.window
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,10 +30,12 @@ fun WindowFrame(
     focused: Boolean,
     onFocus: () -> Unit,
     onClose: () -> Unit,
+    onDrag: (Float, Float) -> Unit,
     content: @Composable () -> Unit
 ) {
     val titleColor = if (focused) Color(0xFF2A4A7E) else Color(0xFF1A2A4E)
     val interaction = remember { MutableInteractionSource() }
+    val density = LocalDensity.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,7 +47,13 @@ fun WindowFrame(
                 .fillMaxWidth()
                 .height(36.dp)
                 .background(titleColor, RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
-                .padding(horizontal = 10.dp),
+                .padding(horizontal = 10.dp)
+                .pointerInput(window.id) {
+                    detectDragGestures(onDragStart = { onFocus() }) { change, dragAmount ->
+                        change.consume()
+                        onDrag(dragAmount.x / density.density, dragAmount.y / density.density)
+                    }
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(

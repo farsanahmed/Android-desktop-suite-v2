@@ -3,6 +3,7 @@ package com.farsan.desktopsuite.ui
 import androidx.compose.foundation.background
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -53,12 +54,14 @@ fun DesktopScreen() {
                 )
             )
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = 48.dp)
                 .clipToBounds()
         ) {
+            val desktopW = maxWidth.value
+            val desktopH = maxHeight.value
             wm.windows.forEach { w ->
                 Box(
                     modifier = Modifier
@@ -68,7 +71,8 @@ fun DesktopScreen() {
                         window = w,
                         focused = w.id == wm.focusedId,
                         onFocus = { wm.focus(w.id) },
-                        onClose = { wm.close(w.id) }
+                        onClose = { wm.close(w.id) },
+                        onDrag = { dx, dy -> wm.move(w.id, dx, dy, desktopW, desktopH) }
                     ) {
                         if (w.kind == AppKind.SYSTEM_INFO) {
                             SystemInfoApp(context)
