@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -74,27 +75,30 @@ fun StartPanel(onClose: () -> Unit, onOpenSystemInfo: () -> Unit) {
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
-        Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-            if (apps == null) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (filtered.isEmpty()) {
-                Text("No apps found", color = Color.White, modifier = Modifier.align(Alignment.Center))
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+        if (apps == null) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 16.dp))
+        } else if (filtered.isEmpty()) {
+            Text("No apps found", color = Color.White, modifier = Modifier.padding(top = 16.dp))
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Desktop apps", color = Color(0xFFB0B0C0), fontSize = 11.sp, modifier = Modifier.padding(end = 8.dp))
+                TextButton(
+                    onClick = { onOpenSystemInfo(); onClose() },
+                    modifier = Modifier.height(48.dp)
                 ) {
-                    Text("Desktop apps", color = Color(0xFFB0B0C0), fontSize = 11.sp, modifier = Modifier.padding(end = 8.dp))
-                    TextButton(onClick = { onOpenSystemInfo(); onClose() }) {
-                        Text("System Info", color = Color.White, fontSize = 11.sp)
-                    }
+                    Text("System Info", color = Color.White, fontSize = 11.sp)
                 }
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(filtered) { app ->
+            }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(filtered) { app ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.clickable {
@@ -129,7 +133,6 @@ fun StartPanel(onClose: () -> Unit, onOpenSystemInfo: () -> Unit) {
                     }
                 }
             }
-        }
         TextButton(onClick = {
             val i = Intent(Settings.ACTION_HOME_SETTINGS)
             try {
