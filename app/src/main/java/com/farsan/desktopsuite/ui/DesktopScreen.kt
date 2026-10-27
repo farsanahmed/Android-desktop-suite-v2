@@ -1,24 +1,35 @@
 package com.farsan.desktopsuite.ui
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.farsan.desktopsuite.ui.apps.SystemInfoApp
+import com.farsan.desktopsuite.ui.window.AppKind
+import com.farsan.desktopsuite.ui.window.DesktopWindow
+import com.farsan.desktopsuite.ui.window.WindowFrame
+import com.farsan.desktopsuite.ui.window.WindowManagerState
 
 var closeStartPanelRequest by mutableStateOf(0)
 
 @Composable
 fun DesktopScreen() {
+    val context = LocalContext.current
     var startOpen by remember { mutableStateOf(false) }
+    val wm = remember { WindowManagerState() }
 
     LaunchedEffect(closeStartPanelRequest) {
         if (closeStartPanelRequest > 0) startOpen = false
@@ -41,10 +52,38 @@ fun DesktopScreen() {
                 )
             )
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 48.dp)
+                .clipToBounds()
+        ) {
+            wm.windows.forEach { w ->
+                Box(
+                    modifier = Modifier
+                        .offset(x = w.x.dp, y = w.y.dp)
+                ) {
+                    WindowFrame(
+                        window = w,
+                        focused = w.id == wm.focusedId,
+                        onFocus = { wm.focus(w.id) },
+                        onClose = { wm.close(w.id) }
+                    ) {
+                        if (w.kind == AppKind.SYSTEM_INFO) {
+                            SystemInfoApp(context)
+                        }
+                    }
+                }
+            }
+        }
         Taskbar(
             startOpen = startOpen,
             onStartToggle = { startOpen = !startOpen },
-            onCloseStart = { startOpen = false }
+            onCloseStart = { startOpen = false },
+            openWindows = wm.windows,
+            focusedId = wm.focusedId,
+            onFocusWindow = { wm.focus(it) },
+            onOpenSystemInfo = { wm.open(AppKind.SYSTEM_INFO, "System Info"); startOpen = false }
         )
     }
 }

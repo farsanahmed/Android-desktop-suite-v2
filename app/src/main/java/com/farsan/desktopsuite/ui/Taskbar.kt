@@ -41,7 +41,15 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun Taskbar(startOpen: Boolean, onStartToggle: () -> Unit, onCloseStart: () -> Unit) {
+fun Taskbar(
+    startOpen: Boolean,
+    onStartToggle: () -> Unit,
+    onCloseStart: () -> Unit,
+    openWindows: List<com.farsan.desktopsuite.ui.window.DesktopWindow>,
+    focusedId: Int?,
+    onFocusWindow: (Int) -> Unit,
+    onOpenSystemInfo: () -> Unit
+) {
     val context = LocalContext.current
     var batteryText by remember { mutableStateOf<String?>(null) }
     var now by remember { mutableStateOf(LocalDateTime.now()) }
@@ -96,7 +104,7 @@ fun Taskbar(startOpen: Boolean, onStartToggle: () -> Unit, onCloseStart: () -> U
                     .background(Color(0xDD1E1E2E), RoundedCornerShape(12.dp))
                     .clickable { }
             ) {
-                StartPanel(onClose = onCloseStart)
+                StartPanel(onClose = onCloseStart, onOpenSystemInfo = onOpenSystemInfo)
             }
         }
 
@@ -126,6 +134,23 @@ fun Taskbar(startOpen: Boolean, onStartToggle: () -> Unit, onCloseStart: () -> U
                         Box(Modifier.size(8.dp).background(Color(0xFF4FC3F7), RoundedCornerShape(2.dp)))
                         Box(Modifier.size(8.dp).background(Color(0xFF4FC3F7), RoundedCornerShape(2.dp)))
                     }
+                }
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                openWindows.forEach { w ->
+                    Text(
+                        text = w.title,
+                        color = Color.White,
+                        fontSize = 11.sp,
+                        modifier = Modifier
+                            .background(
+                                if (w.id == focusedId) Color(0xFF3A5A8A) else Color(0xFF1A2A4A),
+                                RoundedCornerShape(4.dp)
+                            )
+                            .clickable { onFocusWindow(w.id) }
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
                 }
             }
 

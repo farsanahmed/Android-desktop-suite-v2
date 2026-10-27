@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
@@ -44,7 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun StartPanel(onClose: () -> Unit) {
+fun StartPanel(onClose: () -> Unit, onOpenSystemInfo: () -> Unit) {
     val context = LocalContext.current
     var query by remember { mutableStateOf("") }
     var apps by remember { mutableStateOf<List<AppInfo>?>(null) }
@@ -79,6 +80,15 @@ fun StartPanel(onClose: () -> Unit) {
             } else if (filtered.isEmpty()) {
                 Text("No apps found", color = Color.White, modifier = Modifier.align(Alignment.Center))
             } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Desktop apps", color = Color(0xFFB0B0C0), fontSize = 11.sp, modifier = Modifier.padding(end = 8.dp))
+                    TextButton(onClick = { onOpenSystemInfo(); onClose() }) {
+                        Text("System Info", color = Color.White, fontSize = 11.sp)
+                    }
+                }
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(4),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
