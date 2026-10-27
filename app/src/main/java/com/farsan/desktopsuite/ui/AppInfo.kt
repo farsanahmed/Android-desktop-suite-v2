@@ -3,10 +3,11 @@ package com.farsan.desktopsuite.ui
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Build
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -36,7 +37,14 @@ suspend fun loadInstalledApps(context: Context): List<AppInfo> = withContext(Dis
         if (ai.packageName == context.packageName) return@mapNotNull null
         val label = try { ri.loadLabel(pm).toString() } catch (e: Exception) { ai.name }
         val icon = try {
-            ri.loadIcon(pm).toBitmap().asImageBitmap()
+            val drawable = ri.loadIcon(pm)
+            val w = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 96
+            val h = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 96
+            val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, w, h)
+            drawable.draw(canvas)
+            bitmap.asImageBitmap()
         } catch (e: Exception) {
             null
         }

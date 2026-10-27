@@ -6,15 +6,21 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +62,8 @@ fun StartPanel(onClose: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.9f)
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .windowInsetsPadding(WindowInsets.navigationBars)
             .padding(8.dp)
     ) {
         OutlinedTextField(
@@ -87,7 +95,18 @@ fun StartPanel(onClose: () -> Unit) {
                             if (app.icon != null) {
                                 Image(bitmap = app.icon, contentDescription = app.label, modifier = Modifier.size(40.dp))
                             } else {
-                                Box(Modifier.size(40.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .background(Color(0xFF3A3A4A), RoundedCornerShape(8.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = app.label.take(1).uppercase(),
+                                        color = Color.White,
+                                        fontSize = 16.sp
+                                    )
+                                }
                             }
                             Text(
                                 text = app.label,

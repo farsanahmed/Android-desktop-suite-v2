@@ -92,7 +92,8 @@ fun Taskbar() {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(start = 8.dp, bottom = 56.dp)
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .padding(start = 8.dp, bottom = 48.dp)
                     .background(Color(0xDD1E1E2E), RoundedCornerShape(12.dp))
                     .clickable { }
             ) {
@@ -106,7 +107,7 @@ fun Taskbar() {
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.navigationBars)
                 .height(48.dp)
-                .background(Color(0xCC101018)),
+                .background(Color(0xFF101018)),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
