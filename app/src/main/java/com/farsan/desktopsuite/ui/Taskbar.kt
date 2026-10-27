@@ -47,7 +47,7 @@ fun Taskbar(
     onCloseStart: () -> Unit,
     openWindows: List<com.farsan.desktopsuite.ui.window.DesktopWindow>,
     focusedId: Int?,
-    onFocusWindow: (Int) -> Unit,
+    onTaskbarTap: (Int) -> Unit,
     onOpenSystemInfo: () -> Unit
 ) {
     val context = LocalContext.current
@@ -139,18 +139,29 @@ fun Taskbar(
 
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 openWindows.forEach { w ->
-                    Text(
-                        text = w.title,
-                        color = Color.White,
-                        fontSize = 11.sp,
+                    Column(
                         modifier = Modifier
                             .background(
                                 if (w.id == focusedId) Color(0xFF3A5A8A) else Color(0xFF1A2A4A),
                                 RoundedCornerShape(4.dp)
                             )
-                            .clickable { onFocusWindow(w.id) }
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
+                            .clickable { onTaskbarTap(w.id) }
+                    ) {
+                        Text(
+                            text = w.title,
+                            color = if (w.minimized) Color(0xFF8A98B0) else Color.White,
+                            fontSize = 11.sp,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                        if (w.minimized) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(2.dp)
+                                    .background(Color(0xFF4FC3F7))
+                            )
+                        }
+                    }
                 }
             }
 

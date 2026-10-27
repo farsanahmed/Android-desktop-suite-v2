@@ -62,20 +62,49 @@ fun DesktopScreen() {
         ) {
             val desktopW = maxWidth.value
             val desktopH = maxHeight.value
-            wm.windows.forEach { w ->
-                Box(
-                    modifier = Modifier
-                        .offset(x = w.x.dp, y = w.y.dp)
-                ) {
-                    WindowFrame(
-                        window = w,
-                        focused = w.id == wm.focusedId,
-                        onFocus = { wm.focus(w.id) },
-                        onClose = { wm.close(w.id) },
-                        onDrag = { dx, dy -> wm.move(w.id, dx, dy, desktopW, desktopH) }
+            wm.windows.filter { !it.minimized }.forEach { w ->
+                if (w.maximized) {
+                    Box(
+                        modifier = Modifier
+                            .offset(x = 0.dp, y = 0.dp)
                     ) {
-                        if (w.kind == AppKind.SYSTEM_INFO) {
-                            SystemInfoApp(context)
+                        WindowFrame(
+                            window = w,
+                            focused = w.id == wm.focusedId,
+                            onFocus = { wm.focus(w.id) },
+                            onClose = { wm.close(w.id) },
+                            onMinimize = { wm.minimize(w.id) },
+                            onMaximize = { wm.toggleMaximize(w.id) },
+                            onDrag = { _, _ -> },
+                            widthDp = desktopW,
+                            heightDp = desktopH,
+                            draggable = false
+                        ) {
+                            if (w.kind == AppKind.SYSTEM_INFO) {
+                                SystemInfoApp(context)
+                            }
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .offset(x = w.x.dp, y = w.y.dp)
+                    ) {
+                        WindowFrame(
+                            window = w,
+                            focused = w.id == wm.focusedId,
+                            onFocus = { wm.focus(w.id) },
+                            onClose = { wm.close(w.id) },
+                            onMinimize = { wm.minimize(w.id) },
+                            onMaximize = { wm.toggleMaximize(w.id) },
+                            onDrag = { dx, dy -> wm.move(w.id, dx, dy, desktopW, desktopH) },
+                            widthDp = w.width,
+                            heightDp = w.height,
+                            draggable = true
+                        ) {
+                            if (w.kind == AppKind.SYSTEM_INFO) {
+                                SystemInfoApp(context)
+                            }
                         }
                     }
                 }
@@ -87,7 +116,7 @@ fun DesktopScreen() {
             onCloseStart = { startOpen = false },
             openWindows = wm.windows,
             focusedId = wm.focusedId,
-            onFocusWindow = { wm.focus(it) },
+            onTaskbarTap = { wm.taskbarTap(it) },
             onOpenSystemInfo = { wm.open(AppKind.SYSTEM_INFO, "System Info"); startOpen = false }
         )
     }

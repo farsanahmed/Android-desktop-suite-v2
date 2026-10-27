@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,30 +31,39 @@ fun WindowFrame(
     focused: Boolean,
     onFocus: () -> Unit,
     onClose: () -> Unit,
+    onMinimize: () -> Unit,
+    onMaximize: () -> Unit,
     onDrag: (Float, Float) -> Unit,
+    widthDp: Float,
+    heightDp: Float,
+    draggable: Boolean,
     content: @Composable () -> Unit
 ) {
     val titleColor = if (focused) Color(0xFF2A4A7E) else Color(0xFF1A2A4E)
     val interaction = remember { MutableInteractionSource() }
     val density = LocalDensity.current
+    val rounded = if (window.maximized) null else RoundedCornerShape(10.dp)
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xDD1E2A44), RoundedCornerShape(10.dp))
+            .width(widthDp.dp)
+            .height(heightDp.dp)
+            .background(Color(0xDD1E2A44), rounded ?: RoundedCornerShape(0.dp))
             .clickable(interactionSource = interaction, indication = null) { onFocus() }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(36.dp)
-                .background(titleColor, RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
+                .background(titleColor, rounded?.let { RoundedCornerShape(it.topStart, it.topEnd, 0.dp, 0.dp) } ?: RoundedCornerShape(0.dp))
                 .padding(horizontal = 10.dp)
-                .pointerInput(window.id) {
-                    detectDragGestures(onDragStart = { onFocus() }) { change, dragAmount ->
-                        change.consume()
-                        onDrag(dragAmount.x / density.density, dragAmount.y / density.density)
-                    }
-                },
+                .then(
+                    if (draggable) Modifier.pointerInput(window.id) {
+                        detectDragGestures(onDragStart = { onFocus() }) { change, dragAmount ->
+                            change.consume()
+                            onDrag(dragAmount.x / density.density, dragAmount.y / density.density)
+                        }
+                    } else Modifier
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -64,11 +74,31 @@ fun WindowFrame(
                 modifier = Modifier.weight(1f)
             )
             Text(
+                text = if (window.maximized) "[][]" else "[]",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .clickable { onMaximize() }
+                    .padding(horizontal = 4.dp)
+            )
+            Text(
+                text = "—",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .clickable { onMinimize() }
+                    .padding(horizontal = 4.dp)
+            )
+            Text(
                 text = "X",
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                modifier = Modifier.clickable { onClose() }
+                modifier = Modifier
+                    .clickable { onClose() }
+                    .padding(horizontal = 4.dp)
             )
         }
         Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
