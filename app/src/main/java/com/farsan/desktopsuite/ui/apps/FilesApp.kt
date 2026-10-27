@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,11 +21,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.farsan.desktopsuite.ui.files.*
 import kotlinx.coroutines.launch
 import java.io.File
+
+private fun shortPath(p: String, max: Int = 40): String =
+    if (p.length <= max) p else "..." + p.takeLast(max - 3)
 
 @Composable
 fun FilesApp(path: String, onPathChange: (String) -> Unit) {
@@ -37,8 +39,15 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
     var entries by remember { mutableStateOf<List<FileEntry>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        hasAccess = hasStorageAccess(context)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasAccess = hasStorageAccess(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     val root = Environment.getExternalStorageDirectory().absolutePath
@@ -101,11 +110,11 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
                 Text("Up")
             }
             Text(
-                text = path,
+                text = shortPath(path),
                 color = Color.White,
                 fontSize = 10.sp,
                 maxLines = 1,
-                overflow = TextOverflow.StartEllipsis,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
