@@ -89,16 +89,14 @@ fun Taskbar() {
                     .fillMaxSize()
                     .clickable { startOpen = false }
             )
-            Column(
+            Box(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(start = 8.dp, bottom = 56.dp)
                     .background(Color(0xDD1E1E2E), RoundedCornerShape(12.dp))
-                    .padding(16.dp)
+                    .clickable { }
             ) {
-                Text("Start", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                // Placeholder for the next phase: real app list goes here.
-                Text("Apps coming in the next step", color = Color(0xFFB0B0C0), fontSize = 12.sp)
+                StartPanel(onClose = { startOpen = false })
             }
         }
 
