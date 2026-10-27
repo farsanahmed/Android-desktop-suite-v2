@@ -76,6 +76,7 @@ fun DesktopScreen() {
                             onMinimize = { wm.minimize(w.id) },
                             onMaximize = { wm.toggleMaximize(w.id) },
                             onDrag = { _, _ -> },
+                            onResize = { _, _ -> },
                             widthDp = desktopW,
                             heightDp = desktopH,
                             draggable = false
@@ -98,6 +99,7 @@ fun DesktopScreen() {
                             onMinimize = { wm.minimize(w.id) },
                             onMaximize = { wm.toggleMaximize(w.id) },
                             onDrag = { dx, dy -> wm.move(w.id, dx, dy, desktopW, desktopH) },
+                            onResize = { dw, dh -> wm.resize(w.id, dw, dh, desktopW, desktopH) },
                             widthDp = w.width,
                             heightDp = w.height,
                             draggable = true
@@ -117,7 +119,7 @@ fun DesktopScreen() {
             openWindows = wm.windows,
             focusedId = wm.focusedId,
             onTaskbarTap = { wm.taskbarTap(it) },
-            onOpenSystemInfo = { wm.open(AppKind.SYSTEM_INFO, "System Info"); startOpen = false }
+            onOpenSystemInfo = { wm.open(AppKind.SYSTEM_INFO, "System Info", desktopW, desktopH); startOpen = false }
         )
     }
 }

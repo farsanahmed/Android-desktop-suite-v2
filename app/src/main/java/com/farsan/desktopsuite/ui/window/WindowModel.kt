@@ -24,7 +24,7 @@ class WindowManagerState {
 
     val focusedId: Int? get() = windows.lastOrNull { !it.minimized }?.id
 
-    fun open(kind: AppKind, title: String) {
+    fun open(kind: AppKind, title: String, maxW: Float = 1000f, maxH: Float = 1000f) {
         val existing = windows.indexOfFirst { it.kind == kind }
         if (existing >= 0) {
             focus(windows[existing].id)
@@ -32,6 +32,8 @@ class WindowManagerState {
         }
         val offset = (cascade % 5) * 24f
         cascade++
+        val wDef = (maxW - 48f).coerceAtLeast(220f).coerceAtMost(320f)
+        val hDef = (maxH - 48f).coerceAtLeast(160f).coerceAtMost(380f)
         windows.add(
             DesktopWindow(
                 id = nextId++,
@@ -39,8 +41,8 @@ class WindowManagerState {
                 title = title,
                 x = 40f + offset,
                 y = 40f + offset,
-                width = 320f,
-                height = 380f
+                width = wDef,
+                height = hDef
             )
         )
     }
@@ -98,9 +100,19 @@ class WindowManagerState {
         val idx = windows.indexOfFirst { it.id == id }
         if (idx < 0) return
         val w = windows[idx]
-        if (w.maximized) return
+        if (w.maximized || w.minimized) return
         val nx = (w.x + dxDp).coerceIn(0f, (maxX - 80f).coerceAtLeast(0f))
         val ny = (w.y + dyDp).coerceIn(0f, (maxY - 36f).coerceAtLeast(0f))
         windows[idx] = w.copy(x = nx, y = ny)
+    }
+
+    fun resize(id: Int, dwDp: Float, dhDp: Float, maxW: Float, maxH: Float) {
+        val idx = windows.indexOfFirst { it.id == id }
+        if (idx < 0) return
+        val w = windows[idx]
+        if (w.maximized || w.minimized) return
+        val nw = (w.width + dwDp).coerceIn(220f, (maxW - w.x).coerceAtLeast(220f))
+        val nh = (w.height + dhDp).coerceIn(160f, (maxH - w.y).coerceAtLeast(160f))
+        windows[idx] = w.copy(width = nw, height = nh)
     }
 }
