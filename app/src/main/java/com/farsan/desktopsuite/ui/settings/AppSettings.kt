@@ -12,12 +12,12 @@ class AppSettings(context: Context) {
     var keepAwake by mutableStateOf(prefs.getBoolean("keepAwake", false))
         private set
 
-    fun setHideBars(value: Boolean) {
+    fun updateHideBars(value: Boolean) {
         hideBars = value
         prefs.edit().putBoolean("hideBars", value).apply()
     }
 
-    fun setKeepAwake(value: Boolean) {
+    fun updateKeepAwake(value: Boolean) {
         keepAwake = value
         prefs.edit().putBoolean("keepAwake", value).apply()
     }
