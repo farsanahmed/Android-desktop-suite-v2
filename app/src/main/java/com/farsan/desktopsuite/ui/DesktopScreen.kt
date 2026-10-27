@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.farsan.desktopsuite.ui.apps.NotepadApp
 import com.farsan.desktopsuite.ui.apps.SystemInfoApp
 import com.farsan.desktopsuite.ui.window.AppKind
 import com.farsan.desktopsuite.ui.window.WindowFrame
@@ -79,8 +80,12 @@ fun DesktopScreen() {
                             heightDp = desktopH,
                             draggable = false
                         ) {
-                            if (w.kind == AppKind.SYSTEM_INFO) {
-                                SystemInfoApp(context)
+                            when (w.kind) {
+                                AppKind.SYSTEM_INFO -> SystemInfoApp(context)
+                                AppKind.NOTEPAD -> NotepadApp(
+                                    text = wm.notes[w.id] ?: "",
+                                    onTextChange = { wm.notes[w.id] = it }
+                                )
                             }
                         }
                     }
@@ -101,8 +106,12 @@ fun DesktopScreen() {
                             heightDp = w.height,
                             draggable = true
                         ) {
-                            if (w.kind == AppKind.SYSTEM_INFO) {
-                                SystemInfoApp(context)
+                            when (w.kind) {
+                                AppKind.SYSTEM_INFO -> SystemInfoApp(context)
+                                AppKind.NOTEPAD -> NotepadApp(
+                                    text = wm.notes[w.id] ?: "",
+                                    onTextChange = { wm.notes[w.id] = it }
+                                )
                             }
                         }
                     }
@@ -116,7 +125,8 @@ fun DesktopScreen() {
             openWindows = wm.windows,
             focusedId = wm.focusedId,
             onTaskbarTap = { wm.taskbarTap(it) },
-            onOpenSystemInfo = { wm.open(AppKind.SYSTEM_INFO, "System Info", desktopW, desktopH); startOpen = false }
+            onOpenSystemInfo = { wm.open(AppKind.SYSTEM_INFO, "System Info", desktopW, desktopH); startOpen = false },
+            onOpenNotepad = { wm.open(AppKind.NOTEPAD, "Notepad", desktopW, desktopH); startOpen = false }
         )
     }
 }

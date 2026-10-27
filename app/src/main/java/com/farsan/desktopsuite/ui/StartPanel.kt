@@ -46,7 +46,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun StartPanel(onClose: () -> Unit, onOpenSystemInfo: () -> Unit) {
+fun StartPanel(onClose: () -> Unit, onOpenSystemInfo: () -> Unit, onOpenNotepad: () -> Unit) {
     val context = LocalContext.current
     var query by remember { mutableStateOf("") }
     var apps by remember { mutableStateOf<List<AppInfo>?>(null) }
@@ -90,6 +90,12 @@ fun StartPanel(onClose: () -> Unit, onOpenSystemInfo: () -> Unit) {
                     modifier = Modifier.height(48.dp)
                 ) {
                     Text("System Info", color = Color.White, fontSize = 11.sp)
+                }
+                TextButton(
+                    onClick = { onOpenNotepad(); onClose() },
+                    modifier = Modifier.height(48.dp)
+                ) {
+                    Text("Notepad", color = Color.White, fontSize = 11.sp)
                 }
             }
             LazyVerticalGrid(

@@ -3,7 +3,9 @@ package com.farsan.desktopsuite.ui.window
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
-enum class AppKind { SYSTEM_INFO }
+import androidx.compose.runtime.mutableStateMapOf
+
+enum class AppKind { SYSTEM_INFO, NOTEPAD }
 
 data class DesktopWindow(
     val id: Int,
@@ -19,6 +21,7 @@ data class DesktopWindow(
 
 class WindowManagerState {
     val windows: SnapshotStateList<DesktopWindow> = mutableStateListOf()
+    val notes = mutableStateMapOf<Int, String>()
     private var nextId = 1
     private var cascade = 0
 
@@ -34,9 +37,10 @@ class WindowManagerState {
         cascade++
         val wDef = (maxW - 48f).coerceAtLeast(220f).coerceAtMost(320f)
         val hDef = (maxH - 48f).coerceAtLeast(160f).coerceAtMost(380f)
+        val id = nextId++
         windows.add(
             DesktopWindow(
-                id = nextId++,
+                id = id,
                 kind = kind,
                 title = title,
                 x = 40f + offset,
@@ -49,6 +53,7 @@ class WindowManagerState {
 
     fun close(id: Int) {
         windows.removeAll { it.id == id }
+        notes.remove(id)
     }
 
     fun focus(id: Int) {

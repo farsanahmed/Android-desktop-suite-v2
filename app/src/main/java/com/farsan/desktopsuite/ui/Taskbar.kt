@@ -48,7 +48,8 @@ fun Taskbar(
     openWindows: List<com.farsan.desktopsuite.ui.window.DesktopWindow>,
     focusedId: Int?,
     onTaskbarTap: (Int) -> Unit,
-    onOpenSystemInfo: () -> Unit
+    onOpenSystemInfo: () -> Unit,
+    onOpenNotepad: () -> Unit
 ) {
     val context = LocalContext.current
     var batteryText by remember { mutableStateOf<String?>(null) }
@@ -104,7 +105,7 @@ fun Taskbar(
                     .background(Color(0xDD1E1E2E), RoundedCornerShape(12.dp))
                     .clickable { }
             ) {
-                StartPanel(onClose = onCloseStart, onOpenSystemInfo = onOpenSystemInfo)
+                StartPanel(onClose = onCloseStart, onOpenSystemInfo = onOpenSystemInfo, onOpenNotepad = onOpenNotepad)
             }
         }
 
