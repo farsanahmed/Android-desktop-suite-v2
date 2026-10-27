@@ -1,9 +1,7 @@
 package com.farsan.desktopsuite.ui.settings
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 
 class AppSettings(context: Context) {
     private val prefs = context.getSharedPreferences("desktop_settings", Context.MODE_PRIVATE)

@@ -1,9 +1,7 @@
 package com.farsan.desktopsuite.ui.window
 
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
-
-import androidx.compose.runtime.mutableStateMapOf
 
 enum class AppKind { SYSTEM_INFO, NOTEPAD, SETTINGS }
 
