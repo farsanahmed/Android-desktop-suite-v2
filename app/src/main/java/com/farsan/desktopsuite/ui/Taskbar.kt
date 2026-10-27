@@ -33,7 +33,8 @@ fun Taskbar(
     onTaskbarTap: (Int) -> Unit,
     onOpenSystemInfo: () -> Unit,
     onOpenNotepad: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onOpenFiles: () -> Unit
 ) {
     val context = LocalContext.current
     var batteryText by remember { mutableStateOf<String?>(null) }
@@ -86,7 +87,7 @@ fun Taskbar(
                     .background(Color(0xDD1E1E2E), RoundedCornerShape(12.dp))
                     .clickable { }
             ) {
-                StartPanel(onClose = onCloseStart, onOpenSystemInfo = onOpenSystemInfo, onOpenNotepad = onOpenNotepad, onOpenSettings = onOpenSettings)
+                StartPanel(onClose = onCloseStart, onOpenSystemInfo = onOpenSystemInfo, onOpenNotepad = onOpenNotepad, onOpenSettings = onOpenSettings, onOpenFiles = onOpenFiles)
             }
         }
 

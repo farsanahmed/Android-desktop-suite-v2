@@ -3,7 +3,7 @@ package com.farsan.desktopsuite.ui.window
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
-enum class AppKind { SYSTEM_INFO, NOTEPAD, SETTINGS }
+enum class AppKind { SYSTEM_INFO, NOTEPAD, SETTINGS, FILES }
 
 data class DesktopWindow(
     val id: Int,
@@ -20,6 +20,7 @@ data class DesktopWindow(
 class WindowManagerState {
     val windows: SnapshotStateList<DesktopWindow> = mutableStateListOf()
     val notes = mutableStateMapOf<Int, String>()
+    val filePaths = mutableStateMapOf<Int, String>()
     private var nextId = 1
     private var cascade = 0
 
@@ -52,6 +53,7 @@ class WindowManagerState {
     fun close(id: Int) {
         windows.removeAll { it.id == id }
         notes.remove(id)
+        filePaths.remove(id)
     }
 
     fun focus(id: Int) {

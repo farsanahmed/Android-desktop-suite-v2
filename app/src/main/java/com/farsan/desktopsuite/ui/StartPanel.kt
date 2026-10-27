@@ -36,7 +36,8 @@ fun StartPanel(
     onClose: () -> Unit,
     onOpenSystemInfo: () -> Unit,
     onOpenNotepad: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onOpenFiles: () -> Unit
 ) {
     val context = LocalContext.current
     var query by remember { mutableStateOf("") }
@@ -97,6 +98,12 @@ fun StartPanel(
                         modifier = Modifier.height(48.dp)
                     ) {
                         Text("Settings", color = Color.White, fontSize = 11.sp)
+                    }
+                    TextButton(
+                        onClick = { onOpenFiles(); onClose() },
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Text("Files", color = Color.White, fontSize = 11.sp)
                     }
                 }
             }

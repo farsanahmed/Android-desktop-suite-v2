@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.farsan.desktopsuite.ui.apps.FilesApp
 import com.farsan.desktopsuite.ui.apps.NotepadApp
 import com.farsan.desktopsuite.ui.apps.SettingsApp
 import com.farsan.desktopsuite.ui.apps.SystemInfoApp
@@ -21,6 +22,7 @@ import com.farsan.desktopsuite.ui.settings.applyPcMode
 import com.farsan.desktopsuite.ui.window.AppKind
 import com.farsan.desktopsuite.ui.window.WindowFrame
 import com.farsan.desktopsuite.ui.window.WindowManagerState
+import android.os.Environment
 
 var closeStartPanelRequest by mutableStateOf(0)
 
@@ -96,6 +98,10 @@ fun DesktopScreen(settings: AppSettings) {
                                     onTextChange = { wm.notes[w.id] = it }
                                 )
                                 AppKind.SETTINGS -> SettingsApp(settings)
+                                AppKind.FILES -> FilesApp(
+                                    path = wm.filePaths[w.id] ?: Environment.getExternalStorageDirectory().absolutePath,
+                                    onPathChange = { wm.filePaths[w.id] = it }
+                                )
                             }
                         }
                     }
@@ -121,6 +127,10 @@ fun DesktopScreen(settings: AppSettings) {
                                     onTextChange = { wm.notes[w.id] = it }
                                 )
                                 AppKind.SETTINGS -> SettingsApp(settings)
+                                AppKind.FILES -> FilesApp(
+                                    path = wm.filePaths[w.id] ?: Environment.getExternalStorageDirectory().absolutePath,
+                                    onPathChange = { wm.filePaths[w.id] = it }
+                                )
                             }
                         }
                     }
@@ -136,7 +146,8 @@ fun DesktopScreen(settings: AppSettings) {
             onTaskbarTap = { wm.taskbarTap(it) },
             onOpenSystemInfo = { wm.open(AppKind.SYSTEM_INFO, "System Info", desktopW, desktopH); startOpen = false },
             onOpenNotepad = { wm.open(AppKind.NOTEPAD, "Notepad", desktopW, desktopH); startOpen = false },
-            onOpenSettings = { wm.open(AppKind.SETTINGS, "Settings", desktopW, desktopH); startOpen = false }
+            onOpenSettings = { wm.open(AppKind.SETTINGS, "Settings", desktopW, desktopH); startOpen = false },
+            onOpenFiles = { wm.open(AppKind.FILES, "Files", desktopW, desktopH); startOpen = false }
         )
     }
 }
