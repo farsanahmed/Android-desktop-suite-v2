@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,6 +26,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -117,6 +119,20 @@ fun StartPanel(onClose: () -> Unit) {
                     }
                 }
             }
+        }
+        TextButton(onClick = {
+            val i = Intent(Settings.ACTION_HOME_SETTINGS)
+            try {
+                context.startActivity(i)
+            } catch (e: ActivityNotFoundException) {
+                try {
+                    context.startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+                } catch (e2: ActivityNotFoundException) {
+                    Toast.makeText(context, "Cannot open settings", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }) {
+            Text("Set as home app")
         }
     }
 }

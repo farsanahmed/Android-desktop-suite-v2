@@ -41,9 +41,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun Taskbar() {
+fun Taskbar(startOpen: Boolean, onStartToggle: () -> Unit, onCloseStart: () -> Unit) {
     val context = LocalContext.current
-    var startOpen by remember { mutableStateOf(false) }
     var batteryText by remember { mutableStateOf<String?>(null) }
     var now by remember { mutableStateOf(LocalDateTime.now()) }
 
@@ -87,7 +86,7 @@ fun Taskbar() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clickable { startOpen = false }
+                    .clickable { onCloseStart() }
             )
             Box(
                 modifier = Modifier
@@ -97,7 +96,7 @@ fun Taskbar() {
                     .background(Color(0xDD1E1E2E), RoundedCornerShape(12.dp))
                     .clickable { }
             ) {
-                StartPanel(onClose = { startOpen = false })
+                StartPanel(onClose = onCloseStart)
             }
         }
 
@@ -115,7 +114,7 @@ fun Taskbar() {
             Row(
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable { startOpen = !startOpen },
+                    .clickable { onStartToggle() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
