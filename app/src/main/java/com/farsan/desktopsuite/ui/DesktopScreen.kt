@@ -1,7 +1,7 @@
 package com.farsan.desktopsuite.ui
 
-import androidx.compose.foundation.background
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +21,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.farsan.desktopsuite.ui.apps.SystemInfoApp
 import com.farsan.desktopsuite.ui.window.AppKind
-import com.farsan.desktopsuite.ui.window.DesktopWindow
 import com.farsan.desktopsuite.ui.window.WindowFrame
 import com.farsan.desktopsuite.ui.window.WindowManagerState
 
@@ -41,7 +40,7 @@ fun DesktopScreen() {
         startOpen = false
     }
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -54,19 +53,18 @@ fun DesktopScreen() {
                 )
             )
     ) {
-        BoxWithConstraints(
+        val desktopW = maxWidth.value
+        val desktopH = (maxHeight - 48.dp).value
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = 48.dp)
                 .clipToBounds()
         ) {
-            val desktopW = maxWidth.value
-            val desktopH = maxHeight.value
             wm.windows.filter { !it.minimized }.forEach { w ->
                 if (w.maximized) {
                     Box(
-                        modifier = Modifier
-                            .offset(x = 0.dp, y = 0.dp)
+                        modifier = Modifier.offset(x = 0.dp, y = 0.dp)
                     ) {
                         WindowFrame(
                             window = w,
@@ -88,8 +86,7 @@ fun DesktopScreen() {
                     }
                 } else {
                     Box(
-                        modifier = Modifier
-                            .offset(x = w.x.dp, y = w.y.dp)
+                        modifier = Modifier.offset(x = w.x.dp, y = w.y.dp)
                     ) {
                         WindowFrame(
                             window = w,
