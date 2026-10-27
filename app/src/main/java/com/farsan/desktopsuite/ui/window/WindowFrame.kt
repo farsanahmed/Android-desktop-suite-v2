@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -42,19 +43,20 @@ fun WindowFrame(
     val titleColor = if (focused) Color(0xFF2A4A7E) else Color(0xFF1A2A4E)
     val interaction = remember { MutableInteractionSource() }
     val density = LocalDensity.current
-    val rounded = if (window.maximized) null else RoundedCornerShape(10.dp)
+    val shape = if (window.maximized) RectangleShape else RoundedCornerShape(10.dp)
+    val titleShape = if (window.maximized) RectangleShape else RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp, bottomStart = 0.dp, bottomEnd = 0.dp)
     Column(
         modifier = Modifier
             .width(widthDp.dp)
             .height(heightDp.dp)
-            .background(Color(0xDD1E2A44), rounded ?: RoundedCornerShape(0.dp))
+            .background(Color(0xDD1E2A44), shape)
             .clickable(interactionSource = interaction, indication = null) { onFocus() }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(36.dp)
-                .background(titleColor, rounded?.let { RoundedCornerShape(it.topStart, it.topEnd, 0.dp, 0.dp) } ?: RoundedCornerShape(0.dp))
+                .background(titleColor, titleShape)
                 .padding(horizontal = 10.dp)
                 .then(
                     if (draggable) Modifier.pointerInput(window.id) {
