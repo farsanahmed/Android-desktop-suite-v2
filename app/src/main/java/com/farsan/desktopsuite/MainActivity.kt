@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface {
-                    DesktopScreen()
+                    DesktopScreen(settings = settings)
                 }
             }
         }

@@ -5,7 +5,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 
 import androidx.compose.runtime.mutableStateMapOf
 
-enum class AppKind { SYSTEM_INFO, NOTEPAD }
+enum class AppKind { SYSTEM_INFO, NOTEPAD, SETTINGS }
 
 data class DesktopWindow(
     val id: Int,

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -49,13 +48,13 @@ fun Taskbar(
     focusedId: Int?,
     onTaskbarTap: (Int) -> Unit,
     onOpenSystemInfo: () -> Unit,
-    onOpenNotepad: () -> Unit
+    onOpenNotepad: () -> Unit,
+    onOpenSettings: () -> Unit
 ) {
     val context = LocalContext.current
     var batteryText by remember { mutableStateOf<String?>(null) }
     var now by remember { mutableStateOf(LocalDateTime.now()) }
 
-    // Real battery level via sticky broadcast.
     DisposableEffect(context) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(ctx: Context?, intent: Intent?) {
@@ -74,7 +73,6 @@ fun Taskbar(
         onDispose { context.unregisterReceiver(receiver) }
     }
 
-    // Clock updates every minute, aligned to minute boundary.
     LaunchedEffect(Unit) {
         while (true) {
             now = LocalDateTime.now()
@@ -91,7 +89,6 @@ fun Taskbar(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (startOpen) {
-            // Tap outside closes the panel.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -105,7 +102,7 @@ fun Taskbar(
                     .background(Color(0xDD1E1E2E), RoundedCornerShape(12.dp))
                     .clickable { }
             ) {
-                StartPanel(onClose = onCloseStart, onOpenSystemInfo = onOpenSystemInfo, onOpenNotepad = onOpenNotepad)
+                StartPanel(onClose = onCloseStart, onOpenSystemInfo = onOpenSystemInfo, onOpenNotepad = onOpenNotepad, onOpenSettings = onOpenSettings)
             }
         }
 
@@ -119,7 +116,6 @@ fun Taskbar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Start button: 2x2 grid of rounded squares.
             Row(
                 modifier = Modifier
                     .padding(start = 8.dp)

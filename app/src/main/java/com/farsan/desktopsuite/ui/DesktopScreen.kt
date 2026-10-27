@@ -1,5 +1,8 @@
 package com.farsan.desktopsuite.ui
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -20,21 +23,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.farsan.desktopsuite.ui.apps.NotepadApp
+import com.farsan.desktopsuite.ui.apps.SettingsApp
 import com.farsan.desktopsuite.ui.apps.SystemInfoApp
+import com.farsan.desktopsuite.ui.settings.AppSettings
+import com.farsan.desktopsuite.ui.settings.applyPcMode
 import com.farsan.desktopsuite.ui.window.AppKind
 import com.farsan.desktopsuite.ui.window.WindowFrame
 import com.farsan.desktopsuite.ui.window.WindowManagerState
 
 var closeStartPanelRequest by mutableStateOf(0)
 
+private fun findActivity(context: Context): Activity? {
+    var ctx = context
+    while (ctx is ContextWrapper) {
+        if (ctx is Activity) return ctx
+        ctx = ctx.baseContext
+    }
+    return null
+}
+
 @Composable
-fun DesktopScreen() {
+fun DesktopScreen(settings: AppSettings) {
     val context = LocalContext.current
     var startOpen by remember { mutableStateOf(false) }
     val wm = remember { WindowManagerState() }
+    val activity = remember(context) { findActivity(context) }
 
     LaunchedEffect(closeStartPanelRequest) {
         if (closeStartPanelRequest > 0) startOpen = false
+    }
+
+    LaunchedEffect(settings.hideBars, settings.keepAwake) {
+        activity?.let { applyPcMode(it, settings.hideBars, settings.keepAwake) }
     }
 
     BackHandler(enabled = startOpen) {
@@ -64,9 +84,7 @@ fun DesktopScreen() {
         ) {
             wm.windows.filter { !it.minimized }.forEach { w ->
                 if (w.maximized) {
-                    Box(
-                        modifier = Modifier.offset(x = 0.dp, y = 0.dp)
-                    ) {
+                    Box(modifier = Modifier.offset(x = 0.dp, y = 0.dp)) {
                         WindowFrame(
                             window = w,
                             focused = w.id == wm.focusedId,
@@ -86,13 +104,12 @@ fun DesktopScreen() {
                                     text = wm.notes[w.id] ?: "",
                                     onTextChange = { wm.notes[w.id] = it }
                                 )
+                                AppKind.SETTINGS -> SettingsApp(settings)
                             }
                         }
                     }
                 } else {
-                    Box(
-                        modifier = Modifier.offset(x = w.x.dp, y = w.y.dp)
-                    ) {
+                    Box(modifier = Modifier.offset(x = w.x.dp, y = w.y.dp)) {
                         WindowFrame(
                             window = w,
                             focused = w.id == wm.focusedId,
@@ -112,6 +129,7 @@ fun DesktopScreen() {
                                     text = wm.notes[w.id] ?: "",
                                     onTextChange = { wm.notes[w.id] = it }
                                 )
+                                AppKind.SETTINGS -> SettingsApp(settings)
                             }
                         }
                     }
@@ -126,7 +144,8 @@ fun DesktopScreen() {
             focusedId = wm.focusedId,
             onTaskbarTap = { wm.taskbarTap(it) },
             onOpenSystemInfo = { wm.open(AppKind.SYSTEM_INFO, "System Info", desktopW, desktopH); startOpen = false },
-            onOpenNotepad = { wm.open(AppKind.NOTEPAD, "Notepad", desktopW, desktopH); startOpen = false }
+            onOpenNotepad = { wm.open(AppKind.NOTEPAD, "Notepad", desktopW, desktopH); startOpen = false },
+            onOpenSettings = { wm.open(AppKind.SETTINGS, "Settings", desktopW, desktopH); startOpen = false }
         )
     }
 }

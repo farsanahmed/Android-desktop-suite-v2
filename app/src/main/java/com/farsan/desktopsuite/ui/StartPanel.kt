@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,13 +19,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -46,7 +48,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun StartPanel(onClose: () -> Unit, onOpenSystemInfo: () -> Unit, onOpenNotepad: () -> Unit) {
+fun StartPanel(
+    onClose: () -> Unit,
+    onOpenSystemInfo: () -> Unit,
+    onOpenNotepad: () -> Unit,
+    onOpenSettings: () -> Unit
+) {
     val context = LocalContext.current
     var query by remember { mutableStateOf("") }
     var apps by remember { mutableStateOf<List<AppInfo>?>(null) }
@@ -85,17 +92,28 @@ fun StartPanel(onClose: () -> Unit, onOpenSystemInfo: () -> Unit, onOpenNotepad:
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Desktop apps", color = Color(0xFFB0B0C0), fontSize = 11.sp, modifier = Modifier.padding(end = 8.dp))
-                TextButton(
-                    onClick = { onOpenSystemInfo(); onClose() },
-                    modifier = Modifier.height(48.dp)
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text("System Info", color = Color.White, fontSize = 11.sp)
-                }
-                TextButton(
-                    onClick = { onOpenNotepad(); onClose() },
-                    modifier = Modifier.height(48.dp)
-                ) {
-                    Text("Notepad", color = Color.White, fontSize = 11.sp)
+                    TextButton(
+                        onClick = { onOpenSystemInfo(); onClose() },
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Text("System Info", color = Color.White, fontSize = 11.sp)
+                    }
+                    TextButton(
+                        onClick = { onOpenNotepad(); onClose() },
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Text("Notepad", color = Color.White, fontSize = 11.sp)
+                    }
+                    TextButton(
+                        onClick = { onOpenSettings(); onClose() },
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Text("Settings", color = Color.White, fontSize = 11.sp)
+                    }
                 }
             }
             LazyVerticalGrid(
@@ -105,40 +123,40 @@ fun StartPanel(onClose: () -> Unit, onOpenSystemInfo: () -> Unit, onOpenNotepad:
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filtered) { app ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.clickable {
-                                launchApp(context, app)
-                                onClose()
-                            }
-                        ) {
-                            if (app.icon != null) {
-                                Image(bitmap = app.icon, contentDescription = app.label, modifier = Modifier.size(40.dp))
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .background(Color(0xFF3A3A4A), RoundedCornerShape(8.dp)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = app.label.take(1).uppercase(),
-                                        color = Color.White,
-                                        fontSize = 16.sp
-                                    )
-                                }
-                            }
-                            Text(
-                                text = app.label,
-                                color = Color.White,
-                                fontSize = 10.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable {
+                            launchApp(context, app)
+                            onClose()
                         }
+                    ) {
+                        if (app.icon != null) {
+                            Image(bitmap = app.icon, contentDescription = app.label, modifier = Modifier.size(40.dp))
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .background(Color(0xFF3A3A4A), RoundedCornerShape(8.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = app.label.take(1).uppercase(),
+                                    color = Color.White,
+                                    fontSize = 16.sp
+                                )
+                            }
+                        }
+                        Text(
+                            text = app.label,
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                 }
             }
+        }
         TextButton(onClick = {
             val i = Intent(Settings.ACTION_HOME_SETTINGS)
             try {
