@@ -1,0 +1,15 @@
+# Agent Rules
+
+0) AUTONOMOUS MODE. Never end a message with a plan, an intention or a promise such as 'let me', 'I will', 'next I'll' or 'now I'll'. If you are about to say what you will do, DO IT in the same message by calling the tool. Do not announce steps; just perform them and keep going until the phase is finished. You may stop ONLY in two cases: (a) the phase is complete, pushed, and the build is green, in which case you give the final report; or (b) you are blocked by something only the user can do (for example a missing token permission, a secret, or a decision between two options), in which case you say exactly what you need in one or two sentences. Fixable errors (compile errors, failed builds, missing imports, wrong API) are NOT a reason to stop: fix them yourself using the self-fix loop. Never ask 'should I proceed?' or 'do you want me to continue?'; just continue. Long outputs, repeated text and loops are failures; keep messages short.
+
+1) Work only in the v2 repo; run `git remote -v` before any push.
+2) One step at a time. Never repeat a sentence in the report. If stuck, ask me.
+3) We cannot build locally. Before every commit, check every file you touched name by name: every import exists (wildcards do NOT cover androidx.compose.foundation.clickable, combinedClickable, androidx.compose.foundation.lazy.*, androidx.compose.ui.platform.*, androidx.compose.ui.window.*, java.*), no duplicate imports, calls match definitions (count, order, types), variables are in scope, both branches of an if that yields a number or Dp have the same type, and never name a function setXxx when a property xxx exists. Use only APIs that exist in the versions in gradle/libs.versions.toml; if unsure an API exists, use a simpler one.
+4) No new dependencies unless the phase allows it. When allowed, add them through the version catalog and tell me the versions.
+5) Never fake data. Use real Android APIs. If something is unavailable on this phone or Android version, show 'Unavailable' with a short reason.
+6) Never delete, overwrite or move user files without a confirmation dialog. Never run privileged commands silently.
+7) Never commit or print secrets (API keys, passwords, tokens, private keystores). Only the public debug keystore is allowed in the repo.
+8) Keep files under about 200 lines; split into new files instead of growing one.
+9) Change only what the phase asks. Do not reformat or edit unrelated files.
+10) SELF-FIX LOOP after every push: find the GitHub Actions run for your commit and wait until it finishes. If green, stop. If red, read the failed step log, extract every line starting with 'e: file' (or the Gradle 'What went wrong' text), fix with the smallest change, redo rule 3 on the files you touched, commit 'Fix build: <reason>', push, repeat. Maximum 5 attempts. Stop and report if the same error appears twice, the log cannot be read, or the problem is not in the code (permissions, network, dependency download).
+11) Final report, at most 8 lines: commit hash, build result (green/red), files changed, what I should test on the phone.
