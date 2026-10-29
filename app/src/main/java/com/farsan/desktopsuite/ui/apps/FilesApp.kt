@@ -3,7 +3,10 @@ package com.farsan.desktopsuite.ui.apps
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.content.Intent
+import android.net.Uri
 import android.os.Environment
+import androidx.core.content.FileProvider
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -27,6 +30,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.farsan.desktopsuite.ui.files.*
+import java.io.File
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -182,6 +186,31 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
                                 deleteFeedback = null
                                 showDelete = true
                             }) { Text("Delete") }
+                            if (entry.name.endsWith(".apk", ignoreCase = true)) {
+                                Button(onClick = {
+                                    val ctx = context
+                                    val pm = ctx.packageManager
+                                    if (!pm.canRequestPackageInstalls()) {
+                                        // open settings
+                                        val si = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                                            data = Uri.parse("package:${ctx.packageName}")
+                                        }
+                                        ctx.startActivity(si)
+                                    } else {
+                                        val uri = FileProvider.getUriForFile(ctx, "${ctx.packageName}.fileprovider", File(entry.path))
+                                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                                            setDataAndType(uri, "application/vnd.android.package-archive")
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                        }
+                                        ctx.startActivity(intent)
+                                    }
+                                }) { Text("Install") }
+                                Button(onClick = {
+                                    val res = extractApk(entry.path)
+                                    feedback = res.getOrElse { it.message }
+                                    if (res.isSuccess) reload++
+                                }) { Text("Extract") }
+                            }
                         }
                     }
                 }
