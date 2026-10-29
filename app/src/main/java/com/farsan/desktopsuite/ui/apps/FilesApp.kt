@@ -46,6 +46,10 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
     var renameTarget by remember { mutableStateOf<String?>(null) }
     var renameName by remember { mutableStateOf("") }
     var renameFeedback by remember { mutableStateOf<String?>(null) }
+    var showDelete by remember { mutableStateOf(false) }
+    var deleteTarget by remember { mutableStateOf<String?>(null) }
+    var deleteName by remember { mutableStateOf("") }
+    var deleteFeedback by remember { mutableStateOf<String?>(null) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         hasAccess = hasStorageAccess(context)
@@ -161,6 +165,12 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
                                 renameFeedback = null
                                 showRename = true
                             }) { Text("Rename") }
+                            Button(onClick = {
+                                deleteTarget = entry.path
+                                deleteName = entry.name
+                                deleteFeedback = null
+                                showDelete = true
+                            }) { Text("Delete") }
                         }
                     }
                 }
@@ -244,6 +254,38 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
             },
             dismissButton = {
                 Button(onClick = { showRename = false; renameFeedback = null; renameName = ""; renameTarget = null }) { Text("Cancel") }
+            }
+        )
+    }
+
+    if (showDelete) {
+        AlertDialog(
+            onDismissRequest = { showDelete = false },
+            title = { Text("Delete") },
+            text = {
+                Column {
+                    Text("Delete \"$deleteName\"?", color = Color.White, fontSize = 12.sp)
+                    deleteFeedback?.let { Text(it, color = Color(0xFFFF6B6B), fontSize = 10.sp) }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val target = deleteTarget
+                    if (target == null) { showDelete = false; return@Button }
+                    val res = deleteItem(target)
+                    res.onSuccess {
+                        deleteFeedback = null
+                        showDelete = false
+                        deleteTarget = null
+                        deleteName = ""
+                        reload++
+                    }.onFailure {
+                        deleteFeedback = it.message ?: "Failed"
+                    }
+                }) { Text("Delete") }
+            },
+            dismissButton = {
+                Button(onClick = { showDelete = false; deleteFeedback = null; deleteName = ""; deleteTarget = null }) { Text("Cancel") }
             }
         )
     }

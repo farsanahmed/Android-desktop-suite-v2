@@ -11,7 +11,25 @@ fun validateFolderName(name: String): String? {
     return null
 }
 
-fun renameItem(path: String, newName: String): Result<Unit> {
+fun deleteItem(path: String): Result<Unit> {
+    val file = File(path)
+    if (!file.exists()) return Result.failure(IllegalStateException("Does not exist"))
+    if (file.isDirectory) {
+        val children = file.listFiles()
+        if (children != null && children.isNotEmpty()) {
+            return Result.failure(IllegalStateException("Folder not empty"))
+        }
+    }
+    return try {
+        if (file.delete()) Result.success(Unit)
+        else Result.failure(IOException("Delete failed"))
+    } catch (e: SecurityException) {
+        Result.failure(e)
+    } catch (e: IOException) {
+        Result.failure(e)
+    }
+}
+
     val error = validateFolderName(newName)
     if (error != null) return Result.failure(IllegalArgumentException(error))
     val file = File(path)
