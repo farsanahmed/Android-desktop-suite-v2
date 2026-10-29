@@ -105,7 +105,7 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
                 color = Color.White,
                 fontSize = 10.sp,
                 maxLines = 1,
-                overflow = TextOverflow.StartEllipsis,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
