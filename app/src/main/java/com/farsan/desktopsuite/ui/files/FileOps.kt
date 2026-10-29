@@ -30,6 +30,7 @@ fun deleteItem(path: String): Result<Unit> {
     }
 }
 
+fun renameItem(path: String, newName: String): Result<Unit> {
     val error = validateFolderName(newName)
     if (error != null) return Result.failure(IllegalArgumentException(error))
     val file = File(path)
