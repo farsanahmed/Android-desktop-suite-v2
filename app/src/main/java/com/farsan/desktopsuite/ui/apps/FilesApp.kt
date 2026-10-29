@@ -10,8 +10,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,6 +38,10 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
     val scope = rememberCoroutineScope()
     var entries by remember { mutableStateOf<List<FileEntry>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
+    var showNewFolder by remember { mutableStateOf(false) }
+    var newFolderName by remember { mutableStateOf("") }
+    var feedback by remember { mutableStateOf<String?>(null) }
+    var reload by remember { mutableStateOf(0) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         hasAccess = hasStorageAccess(context)
@@ -78,7 +84,7 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
         return
     }
 
-    LaunchedEffect(path) {
+    LaunchedEffect(path, reload) {
         entries = null
         error = null
         val res = listDirectory(path)
@@ -99,6 +105,10 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
                 }
             }, enabled = !isRoot) {
                 Text("Up")
+            }
+            Spacer(Modifier.width(8.dp))
+            Button(onClick = { showNewFolder = true }) {
+                Text("New folder")
             }
             Text(
                 text = path,
@@ -146,5 +156,46 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
                 }
             }
         }
+    }
+
+    if (showNewFolder) {
+        AlertDialog(
+            onDismissRequest = { showNewFolder = false },
+            title = { Text("New folder") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = newFolderName,
+                        onValueChange = { newFolderName = it },
+                        label = { Text("Folder name") },
+                        singleLine = true
+                    )
+                    feedback?.let { Text(it, color = Color(0xFFFF6B6B), fontSize = 10.sp) }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val err = validateFolderName(newFolderName)
+                    if (err != null) {
+                        feedback = err
+                        return@Button
+                    }
+                    val res = createFolder(path, newFolderName)
+                    res.onSuccess {
+                        feedback = null
+                        showNewFolder = false
+                        newFolderName = ""
+                        reload++
+                        entries = null
+                        // trigger reload by re-running LaunchedEffect? Use direct
+                    }.onFailure {
+                        feedback = it.message ?: "Failed"
+                    }
+                }) { Text("Create") }
+            },
+            dismissButton = {
+                Button(onClick = { showNewFolder = false; feedback = null; newFolderName = "" }) { Text("Cancel") }
+            }
+        )
     }
 }
