@@ -90,6 +90,7 @@ fun extractApk(apkPath: String): Result<String> {
     }
 }
 
+fun createFolder(parentPath: String, name: String): Result<Unit> {
     val error = validateFolderName(name)
     if (error != null) return Result.failure(IllegalArgumentException(error))
     val parent = File(parentPath)
