@@ -42,6 +42,7 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
     var newFolderName by remember { mutableStateOf("") }
     var feedback by remember { mutableStateOf<String?>(null) }
     var reload by remember { mutableStateOf(0) }
+    var searchQuery by remember { mutableStateOf("") }
     var showRename by remember { mutableStateOf(false) }
     var renameTarget by remember { mutableStateOf<String?>(null) }
     var renameName by remember { mutableStateOf("") }
@@ -118,6 +119,14 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
             Button(onClick = { showNewFolder = true }) {
                 Text("New folder")
             }
+            Spacer(Modifier.width(8.dp))
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search") },
+                singleLine = true,
+                modifier = Modifier.weight(1f)
+            )
             Text(
                 text = path,
                 color = Color.White,
@@ -132,9 +141,11 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
         } else if (error != null) {
             Text(text = error ?: "", color = Color(0xFFFF6B6B), fontSize = 11.sp)
         } else {
-            val list = entries ?: emptyList()
+            val list = (entries ?: emptyList()).filter {
+                searchQuery.isBlank() || it.name.contains(searchQuery, ignoreCase = true)
+            }
             if (list.isEmpty()) {
-                Text("This folder is empty", color = Color(0xFFB0B0C0), fontSize = 11.sp)
+                Text(if (searchQuery.isBlank()) "This folder is empty" else "No matches", color = Color(0xFFB0B0C0), fontSize = 11.sp)
             } else {
                 LazyColumn {
                     items(list) { entry ->
