@@ -11,7 +11,23 @@ fun validateFolderName(name: String): String? {
     return null
 }
 
-fun createFolder(parentPath: String, name: String): Result<Unit> {
+fun renameItem(path: String, newName: String): Result<Unit> {
+    val error = validateFolderName(newName)
+    if (error != null) return Result.failure(IllegalArgumentException(error))
+    val file = File(path)
+    if (!file.exists()) return Result.failure(IllegalStateException("Does not exist"))
+    val target = File(file.parentFile, newName.trim())
+    if (target.exists()) return Result.failure(IllegalStateException("Already exists"))
+    return try {
+        if (file.renameTo(target)) Result.success(Unit)
+        else Result.failure(IOException("Rename failed"))
+    } catch (e: SecurityException) {
+        Result.failure(e)
+    } catch (e: IOException) {
+        Result.failure(e)
+    }
+}
+
     val error = validateFolderName(name)
     if (error != null) return Result.failure(IllegalArgumentException(error))
     val parent = File(parentPath)

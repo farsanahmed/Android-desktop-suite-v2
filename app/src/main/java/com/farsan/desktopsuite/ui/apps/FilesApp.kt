@@ -42,6 +42,10 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
     var newFolderName by remember { mutableStateOf("") }
     var feedback by remember { mutableStateOf<String?>(null) }
     var reload by remember { mutableStateOf(0) }
+    var showRename by remember { mutableStateOf(false) }
+    var renameTarget by remember { mutableStateOf<String?>(null) }
+    var renameName by remember { mutableStateOf("") }
+    var renameFeedback by remember { mutableStateOf<String?>(null) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         hasAccess = hasStorageAccess(context)
@@ -151,6 +155,12 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
                                     Text("${formatSize(entry.sizeBytes)}  ${formatDate(entry.modifiedMillis)}", color = Color(0xFFB0B0C0), fontSize = 10.sp)
                                 }
                             }
+                            Button(onClick = {
+                                renameTarget = entry.path
+                                renameName = entry.name
+                                renameFeedback = null
+                                showRename = true
+                            }) { Text("Rename") }
                         }
                     }
                 }
@@ -195,6 +205,45 @@ fun FilesApp(path: String, onPathChange: (String) -> Unit) {
             },
             dismissButton = {
                 Button(onClick = { showNewFolder = false; feedback = null; newFolderName = "" }) { Text("Cancel") }
+            }
+        )
+    }
+
+    if (showRename) {
+        AlertDialog(
+            onDismissRequest = { showRename = false },
+            title = { Text("Rename") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = renameName,
+                        onValueChange = { renameName = it },
+                        label = { Text("New name") },
+                        singleLine = true
+                    )
+                    renameFeedback?.let { Text(it, color = Color(0xFFFF6B6B), fontSize = 10.sp) }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val target = renameTarget
+                    if (target == null) { showRename = false; return@Button }
+                    val err = validateFolderName(renameName)
+                    if (err != null) { renameFeedback = err; return@Button }
+                    val res = renameItem(target, renameName)
+                    res.onSuccess {
+                        renameFeedback = null
+                        showRename = false
+                        renameTarget = null
+                        renameName = ""
+                        reload++
+                    }.onFailure {
+                        renameFeedback = it.message ?: "Failed"
+                    }
+                }) { Text("Rename") }
+            },
+            dismissButton = {
+                Button(onClick = { showRename = false; renameFeedback = null; renameName = ""; renameTarget = null }) { Text("Cancel") }
             }
         )
     }
